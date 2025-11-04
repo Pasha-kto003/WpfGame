@@ -20,6 +20,12 @@
     <None Remove="Images\png-clipart-gold-and-silver-bullet-illustration-enter-the-gungeon-playstation-4-sprite-bullets-game-video-game-thumbnail.png" />
     <None Remove="Images\purple.png" />
     <None Remove="mrd7stj7vtv71.png" />
+    <None Remove="Sounds\boss_hit.mp3" />
+    <None Remove="Sounds\explosion.mp3" />
+    <None Remove="Sounds\game_over.mp3" />
+    <None Remove="Sounds\shoot.mp3" />
+    <None Remove="Sounds\shoot.wav" />
+    <None Remove="Sounds\win.wav" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,6 +60,24 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\purple.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Sounds\boss_hit.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Sounds\explosion.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Sounds\game_over.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Sounds\shoot.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Sounds\shoot.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Sounds\win.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

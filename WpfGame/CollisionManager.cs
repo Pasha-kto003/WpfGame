@@ -69,23 +69,38 @@ namespace WpfGame
                 animationManager.CreateBossHitEffect(enemyManager.Boss.Visual);
                 bulletManager.RemoveBullet(bullet, bulletManager.PlayerBullets);
                 enemyManager.Boss.Health--;
-                uiManager.UpdateBossHealthBar((double)enemyManager.Boss.Health / enemyManager.Boss.MaxHealth);
+
+                if (enemyManager.Boss.IsInfiniteBoss)
+                {
+                    gameState.IncreaseScore(200);
+                    uiManager.UpdateScore(gameState.Score);
+                }
+                else
+                {
+                    uiManager.UpdateBossHealthBar((double)enemyManager.Boss.Health / enemyManager.Boss.MaxHealth);
+                }
 
                 if (enemyManager.Boss.Health <= 0)
                 {
                     animationManager.CreateExplosion(
                         Canvas.GetLeft(enemyManager.Boss.Visual) + enemyManager.Boss.Visual.Width / 2,
-                        Canvas.GetTop(enemyManager.Boss.Visual) + enemyManager.Boss.Visual.Height / 2, 80);
+                        Canvas.GetTop(enemyManager.Boss.Visual) + enemyManager.Boss.Visual.Height / 2,
+                        enemyManager.Boss.IsInfiniteBoss ? 60 : 80);
 
-                    enemyManager.Boss.Remove();
-                    gameState.IncreaseScore(500);
-                    uiManager.UpdateScore(gameState.Score);
-                    gameState.NextLevel();
-
-                    if (gameState.Level > 4)
+                    if (!enemyManager.Boss.IsInfiniteBoss)
                     {
-                        gameState.TriggerWinGame();
+                        gameState.IncreaseScore(500);
+                        uiManager.UpdateScore(gameState.Score);
+                        gameState.NextLevel();
+
+                        if (gameState.Level > 4)
+                        {
+                            gameState.TriggerWinGame();
+                        }
                     }
+
+                    // ИСПРАВЛЕНИЕ: используем метод RemoveBoss вместо прямого доступа
+                    enemyManager.RemoveBoss();
                 }
             }
         }

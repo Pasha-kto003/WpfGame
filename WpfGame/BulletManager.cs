@@ -14,10 +14,12 @@ namespace WpfGame
 
         private Canvas gameCanvas;
         private Random rnd = new Random();
+        private SoundManager soundManager; // ДОБАВЛЕНО
 
-        public BulletManager(Canvas canvas)
+        public BulletManager(Canvas canvas, SoundManager soundManager) // ИЗМЕНЕНО
         {
             gameCanvas = canvas;
+            this.soundManager = soundManager; // ДОБАВЛЕНО
         }
 
         public void ShootPlayerBullet(double playerX, double playerY, double playerWidth)
@@ -38,6 +40,7 @@ namespace WpfGame
             Canvas.SetLeft(bullet, bx);
             Canvas.SetTop(bullet, by);
             PlayerBullets.Add(bullet);
+            soundManager.PlaySound("shoot");
         }
 
         public void ShootEnemyBullet(double shooterX, double shooterY, double shooterWidth, double shooterHeight)
@@ -56,6 +59,7 @@ namespace WpfGame
             Canvas.SetLeft(bullet, bx);
             Canvas.SetTop(bullet, by);
             EnemyBullets.Add(bullet);
+            soundManager.PlaySound("shoot");
         }
 
         public void UpdateBullets(double playerBulletSpeed, double enemyBulletSpeed)

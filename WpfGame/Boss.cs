@@ -12,14 +12,27 @@ namespace WpfGame
         public int MaxHealth { get; } = 20;
         public double Direction { get; set; } = 1;
         public bool IsAlive => Visual != null;
+        public bool IsInfiniteBoss { get; }
 
         private Canvas gameCanvas;
 
-        public Boss(Canvas canvas)
+        public Boss(Canvas canvas, bool isInfiniteBoss)
         {
             gameCanvas = canvas;
-            Health = MaxHealth;
-            CreateVisual();
+            IsInfiniteBoss = isInfiniteBoss;
+
+            if (isInfiniteBoss)
+            {
+                MaxHealth = 1; // НОВОЕ: в бесконечном режиме босс уничтожается с одного попадания
+                Health = 1;
+                CreateInfiniteBossVisual();
+            }
+            else
+            {
+                MaxHealth = 20;
+                Health = 20;
+                CreateVisual();
+            }
         }
 
         private void CreateVisual()
@@ -37,6 +50,21 @@ namespace WpfGame
             Canvas.SetTop(Visual, 60);
         }
 
+        private void CreateInfiniteBossVisual()
+        {
+            Visual = new Rectangle()
+            {
+                Width = 120,
+                Height = 50,
+                Fill = CreateInfiniteBossAppearance(),
+                Stroke = Brushes.Gold,
+                StrokeThickness = 2,
+            };
+            gameCanvas.Children.Add(Visual);
+            Canvas.SetLeft(Visual, (gameCanvas.ActualWidth - Visual.Width) / 2);
+            Canvas.SetTop(Visual, 40);
+        }
+
         private Brush CreateBossAppearance()
         {
             try
@@ -50,6 +78,23 @@ namespace WpfGame
             catch
             {
                 return new SolidColorBrush(Colors.MediumPurple);
+            }
+        }
+
+        private Brush CreateInfiniteBossAppearance()
+        {
+            try
+            {
+                var imageBrush = new ImageBrush();
+                imageBrush.ImageSource = new System.Windows.Media.Imaging.BitmapImage(
+                    new System.Uri("pack://application:,,,/Images/Boss.png"));
+                imageBrush.Stretch = Stretch.Uniform;
+                return imageBrush;
+            }
+            catch
+            {
+                // Fallback цвет для босса бесконечного режима
+                return new SolidColorBrush(Colors.Gold);
             }
         }
 

@@ -10,14 +10,18 @@ namespace WpfGame
     {
         private Canvas gameCanvas;
         private Random rnd = new Random();
+        private SoundManager soundManager; // ДОБАВЛЕНО
 
-        public AnimationManager(Canvas canvas)
+        public AnimationManager(Canvas canvas, SoundManager soundManager) // ИЗМЕНЕНО
         {
             gameCanvas = canvas;
+            this.soundManager = soundManager; // ДОБАВЛЕНО
         }
 
         public void CreateExplosion(double x, double y, double size = 30)
         {
+            soundManager.PlaySound("explosion"); // ДОБАВЛЕНО
+
             var explosion = new Ellipse()
             {
                 Width = size * 0.5,
@@ -43,33 +47,10 @@ namespace WpfGame
             explosion.BeginAnimation(Ellipse.OpacityProperty, opacityAnimation);
         }
 
-        public void CreateShieldDestructionEffect(Rectangle shield)
-        {
-            double x = Canvas.GetLeft(shield) + shield.Width / 2;
-            double y = Canvas.GetTop(shield) + shield.Height / 2;
-
-            for (int i = 0; i < 3; i++)
-            {
-                double delaySeconds = i * 0.1;
-                var explosionTimer = new System.Windows.Threading.DispatcherTimer()
-                {
-                    Interval = TimeSpan.FromSeconds(delaySeconds)
-                };
-                explosionTimer.Tick += (s, e) =>
-                {
-                    CreateExplosion(
-                        x + (rnd.NextDouble() - 0.5) * shield.Width,
-                        y + (rnd.NextDouble() - 0.5) * shield.Height,
-                        20
-                    );
-                    explosionTimer.Stop();
-                };
-                explosionTimer.Start();
-            }
-        }
-
         public void CreateBossHitEffect(Rectangle boss)
         {
+            soundManager.PlaySound("boss_hit"); // ДОБАВЛЕНО
+
             var hitEffect = new Rectangle()
             {
                 Width = boss.Width,

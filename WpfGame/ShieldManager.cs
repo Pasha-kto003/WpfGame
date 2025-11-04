@@ -14,10 +14,12 @@ namespace WpfGame
         private Canvas gameCanvas;
         private Random rnd = new Random();
         private AnimationManager animate;
+        private GameStateManager gameState;
 
-        public ShieldManager(Canvas canvas)
+        public ShieldManager(Canvas canvas, GameStateManager gameStateManager) // ИЗМЕНЕНО: добавляем gameState
         {
             gameCanvas = canvas;
+            gameState = gameStateManager;
         }
 
         public void CreateShields()
@@ -33,6 +35,9 @@ namespace WpfGame
             double shieldWidth = 60;
             double shieldHeight = 20;
             double shieldY = gameCanvas.ActualHeight - 120;
+
+            int shieldCount = gameState.IsInfiniteMode ? 5 : 2;
+            int shieldHealth = gameState.IsInfiniteMode ? 30 : 5;
 
             for (int i = 0; i < 2; i++)
             {
@@ -54,9 +59,8 @@ namespace WpfGame
 
                 gameCanvas.Children.Add(shield.Visual);
 
-                double shieldX = i == 0
-                    ? gameCanvas.ActualWidth * 0.2 - shieldWidth / 2  // Левый щит
-                    : gameCanvas.ActualWidth * 0.8 - shieldWidth / 2; // Правый щит
+                double shieldSpacing = gameCanvas.ActualWidth / (shieldCount + 1);
+                double shieldX = shieldSpacing * (i + 1) - shieldWidth / 2;
 
                 Canvas.SetLeft(shield.Visual, shieldX);
                 Canvas.SetTop(shield.Visual, shieldY);

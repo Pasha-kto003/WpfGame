@@ -15,6 +15,7 @@ namespace WpfGame
         private UIManager uiManager;
         private CollisionManager collisionManager;
         private Random rnd = new Random();
+        private DateTime lastBossSpawnTime = DateTime.MinValue; // НОВОЕ: время последнего спавна босса
 
         public GameManager(Player player, EnemyManager enemyManager, BulletManager bulletManager,
                          ShieldManager shieldManager, AnimationManager animationManager,
@@ -49,6 +50,8 @@ namespace WpfGame
 
             HandleEnemyShooting();
 
+            HandleInfiniteBoss();
+
             collisionManager.CheckAllCollisions();
 
             CheckGameConditions();
@@ -56,9 +59,26 @@ namespace WpfGame
 
         private void HandleEnemyShooting()
         {
-            if (!enemyManager.BossFight)
+            if (enemyManager.BossFight)
             {
-                if (rnd.NextDouble() < 0.02 + (0.02 * gameState.Level))
+                // Стрельба босса
+                if (enemyManager.Boss != null && rnd.NextDouble() < 0.05)
+                {
+                    var boss = enemyManager.Boss;
+                    var bossPos = Canvas.GetLeft(boss.Visual);
+                    var bossTop = Canvas.GetTop(boss.Visual);
+                    bulletManager.ShootEnemyBullet(bossPos, bossTop,
+                        boss.Visual.Width, boss.Visual.Height);
+                }
+            }
+            else
+            {
+                // НОВОЕ: в бесконечном режиме враги стреляют чаще
+                double shootChance = gameState.IsInfiniteMode ?
+                    0.03 + (0.01 * enemyManager.CurrentWave) :
+                    0.02 + (0.02 * gameState.Level);
+
+                if (rnd.NextDouble() < shootChance)
                 {
                     var shooter = enemyManager.GetRandomShooter();
                     if (shooter != null)
@@ -70,19 +90,24 @@ namespace WpfGame
                     }
                 }
             }
-            else
-            {
-                if (enemyManager.IsBossAlive && rnd.NextDouble() < 0.05)
-                {
-                    var boss = enemyManager.Boss;
-                    var position = boss.GetPosition();
+        }
 
-                    if (position.HasValue)
-                    {
-                        bulletManager.ShootEnemyBullet(position.Value.x, position.Value.y,
-                            boss.Visual.Width, boss.Visual.Height);
-                    }
+        private void HandleInfiniteBoss()
+        {
+            if (gameState.IsInfiniteMode && gameState.ShouldSpawnInfiniteBoss())
+            {
+                // Спавним босса, если его нет и прошло достаточно времени
+                if (!enemyManager.BossFight &&
+                    (DateTime.Now - lastBossSpawnTime).TotalMinutes >= 3)
+                {
+                    enemyManager.SpawnInfiniteBoss();
+                    lastBossSpawnTime = DateTime.Now;
                 }
+            }
+            else if (enemyManager.BossFight && enemyManager.Boss != null && enemyManager.Boss.IsInfiniteBoss)
+            {
+                // Убираем босса, когда время вышло
+                enemyManager.RemoveBoss();
             }
         }
 
@@ -119,9 +144,28 @@ namespace WpfGame
             }
         }
 
+        public void StartInfiniteMode()
+        {
+            gameState.StartInfiniteMode();
+            player.Reset(); // Явный вызов Reset для бесконечного режима
+            uiManager.UpdateScore(gameState.Score);
+            uiManager.UpdateLives(player.Lives);
+            uiManager.UpdateLevel(5);
+
+            bulletManager.ClearAllBullets();
+            enemyManager.ClearEnemies();
+            shieldManager.ClearShields();
+            shieldManager.CreateShields();
+
+            SpawnEnemiesForLevel(5);
+            player.AnimateSpawn();
+            gameState.StartGame();
+        }
+
         public void ResetGame()
         {
             gameState.ResetGame();
+            player.Lives = 3;
             uiManager.UpdateScore(gameState.Score);
             uiManager.UpdateLives(player.Lives);
             uiManager.UpdateLevel(gameState.Level);

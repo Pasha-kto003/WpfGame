@@ -17,11 +17,12 @@ namespace WpfGame
         public bool Shooting { get; set; }
 
         private Canvas gameCanvas;
+        private int initialLives = 3;
 
         public Player(Canvas canvas)
         {
             gameCanvas = canvas;
-            Lives = 3;
+            Lives = initialLives;
             CreateVisual();
         }
 
@@ -30,7 +31,7 @@ namespace WpfGame
             Visual = new Rectangle()
             {
                 Width = 40,
-                Height = 18,
+                Height = 40,
                 Fill = CreatePlayerAppearance(),
                 RadiusX = 4,
                 RadiusY = 4
@@ -50,7 +51,6 @@ namespace WpfGame
             }
             catch
             {
-                // Если изображение не найдено, используем fallback цвет
                 return new SolidColorBrush(Colors.LightGreen);
             }
         }
@@ -88,6 +88,23 @@ namespace WpfGame
         {
             var animation = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.5));
             Visual.BeginAnimation(Rectangle.OpacityProperty, animation);
+        }
+
+        // НОВЫЙ МЕТОД: Сброс состояния игрока
+        public void Reset()
+        {
+            Lives = initialLives;
+            MoveLeft = false;
+            MoveRight = false;
+            Shooting = false;
+
+            // Сбрасываем позицию
+            if (Visual != null && gameCanvas.ActualWidth > 0)
+            {
+                Visual.Opacity = 1;
+                SetPosition((gameCanvas.ActualWidth - Visual.Width) / 2,
+                           gameCanvas.ActualHeight - Visual.Height - 20);
+            }
         }
     }
 }
